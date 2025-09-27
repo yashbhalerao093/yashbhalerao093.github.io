@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QueryGenie</title>
+  <style>
+    /* Your CSS remains the same */
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f8f9fa;
+      font-family: Arial, sans-serif;
+      overflow: hidden;
+    }
+    .loader-container {
+      text-align: center;
+      animation: fadeIn 1.5s ease-in-out;
+    }
+    .logo {
+      width: 250px;
+      height: auto;
+      animation: pulse 2s infinite ease-in-out;
+    }
+    .loading-text {
+      margin-top: 20px;
+      font-size: 20px;
+      font-weight: bold;
+      color: #0d6efd;
+      letter-spacing: 2px;
+      animation: blink 1.5s infinite;
+    }
+    @keyframes pulse {
+      0% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.1); opacity: 0.8; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="loader-container">
+    <p><b>QueryGenie</b></p>
+    <div class="loading-text">Loading...</div>
+  </div>
+
+  <script>
+    // Redirect after 3 seconds to your main page
+    setTimeout(() => {
+      window.location.href = "home.html"; // <-- THE ONLY CHANGE IS HERE
+    }, 3000);
+  </script>
+</body>
+</html>

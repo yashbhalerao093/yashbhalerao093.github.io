@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QueryGenie | Login</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    body {
+      height: 100vh;
+      margin: 0;
+      font-family: system-ui, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #bfd5fa, #96bfff, #2d62f5);
+    }
+
+    .login-container {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+      display: flex;
+      overflow: hidden;
+      max-width: 800px;
+      width: 100%;
+    }
+
+    .login-left {
+      flex: 1;
+      background: linear-gradient(135deg, #bfd5fa, #96bfff, #2d62f5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+      color: #fff;
+      font-size: 24px;
+      font-weight: bold;
+      text-align: center;
+    }
+    
+    .login-leftt {
+      color:#333;
+
+    }
+    .login-right {
+      flex: 1;
+      padding: 40px;
+    }
+
+    .login-right h3 {
+      margin-bottom: 20px;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .form-control {
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 14px;
+    }
+
+    .btn-login {
+      border-radius: 8px;
+      background: linear-gradient(135deg, #A3C4FF, #5B9BFF, #1A4ED8);
+      color: #fff;
+      font-weight: 600;
+      padding: 12px;
+      width: 100%;
+      transition: 0.3s;
+      border: none;
+    }
+
+    .btn-login:hover {
+      opacity: 0.9;
+    }
+
+    .extra-links {
+      font-size: 13px;
+      margin-top: 12px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .extra-links a {
+      color: #6a11cb;
+      text-decoration: none;
+    }
+    .extra-links a:hover {
+      text-decoration: underline;
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="login-container">
+    <!-- Left side -->
+    <div class="login-left">
+      <div><b class="login-leftt">QueryGenie</b><br>Conversational AI SQL Assistant</div>
+    </div>
+
+    <!-- Right side --> 
+    <div class="login-right">
+      <!-- Step 1: Role selection -->
+      <div id="roleSelection">
+        <h3>Select Role</h3>
+        <button class="btn btn-login mb-3" onclick="showLoginForm('User')">Login as Viewer (by default)</button>
+        <button class="btn btn-login mb-3" onclick="showLoginForm('Operator')">Login as Operator</button>
+        <button class="btn btn-login" onclick="showLoginForm('Manager')">Login as Admin</button>
+      </div>
+
+      <!-- Step 2: Login form -->
+      <div id="loginForm" class="hidden">
+        <h3 id="roleTitle">Login</h3>
+        <form onsubmit="handleLogin(event)">
+          <div class="mb-3">
+            <div class="input-group">
+              <span class="input-group-text"><i class="fa fa-user"></i></span>
+              <input type="text" id="username" class="form-control" placeholder="Username" required>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <div class="input-group">
+              <span class="input-group-text"><i class="fa fa-lock"></i></span>
+              <input type="password" id="password" class="form-control" placeholder="Password" required>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-login">Login</button>
+
+          <div class="extra-links">
+            <a href="#">Forgot Password?</a>
+            <a href="#">Create Your Account →</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let selectedRole = "";
+
+    function showLoginForm(role) {
+      selectedRole = role;
+      document.getElementById("roleSelection").classList.add("hidden");
+      document.getElementById("loginForm").classList.remove("hidden");
+      document.getElementById("roleTitle").innerText = role + " Login";
+    }
+
+    function handleLogin(event) {
+      event.preventDefault();
+      const username = document.getElementById("username").value;
+      const password = document.getElementById("password").value;
+
+      // Example login logic (replace with real authentication)
+      if (username === "admin" && password === "1234") {
+        alert(selectedRole + " logged in successfully!");
+        window.location.href = "index.html";
+      } else {
+        alert("Invalid credentials for " + selectedRole);
+      }
+    }
+  </script>
+
+</body>
+</html>
