@@ -1,64 +1,1159 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>QueryGenie</title>
-  <style>
-    /* Your CSS remains the same */
-    body {
-      margin: 0;
-      height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: #f8f9fa;
-      font-family: Arial, sans-serif;
-      overflow: hidden;
-    }
-    .loader-container {
-      text-align: center;
-      animation: fadeIn 1.5s ease-in-out;
-    }
-    .logo {
-      width: 250px;
-      height: auto;
-      animation: pulse 2s infinite ease-in-out;
-    }
-    .loading-text {
-      margin-top: 20px;
-      font-size: 20px;
-      font-weight: bold;
-      color: #0d6efd;
-      letter-spacing: 2px;
-      animation: blink 1.5s infinite;
-    }
-    @keyframes pulse {
-      0% { transform: scale(1); opacity: 1; }
-      50% { transform: scale(1.1); opacity: 0.8; }
-      100% { transform: scale(1); opacity: 1; }
-    }
-    @keyframes blink {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.4; }
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(30px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QueryGenie 🧞 - Conversational AI SQL Assistant</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-light: #4895ef;
+            --secondary: #3f37c9;
+            --dark: #1d3557;
+            --light: #f8f9fa;
+            --gray: #6c757d;
+            --success: #4cc9f0;
+            --warning: #f72585;
+            --user-msg: #e3f2fd;
+            --bot-msg: #f5f5f5;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f0f2f5;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        /* Header Styles */
+        header {
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo h1 {
+            font-size: 1.8rem;
+            color: var(--dark);
+        }
+
+        .tagline {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .role-badge {
+            background-color: var(--primary-light);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .login-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.3s;
+        }
+
+        .login-btn:hover {
+            background-color: var(--secondary);
+        }
+
+        /* Main Layout */
+        .main-container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background-color: white;
+            padding: 1.5rem;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .new-chat-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: background-color 0.3s;
+        }
+
+        .new-chat-btn:hover {
+            background-color: var(--secondary);
+        }
+
+        .chat-history {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .chat-history h3 {
+            font-size: 0.9rem;
+            color: var(--gray);
+            margin-bottom: 10px;
+        }
+
+        .history-item {
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .history-item:hover {
+            background-color: #f5f5f5;
+        }
+
+        .history-item.active {
+            background-color: var(--user-msg);
+            font-weight: 500;
+        }
+
+        /* Chat Area */
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 1.5rem;
+            overflow: hidden;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 10px;
+            line-height: 1.5;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .user-message {
+            align-self: flex-end;
+            background-color: var(--user-msg);
+            border-bottom-right-radius: 2px;
+        }
+
+        .bot-message {
+            align-self: flex-start;
+            background-color: var(--bot-msg);
+            border-bottom-left-radius: 2px;
+        }
+
+        .message-header {
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.9rem;
+        }
+
+        .sql-query {
+            background-color: #2d3748;
+            color: #e2e8f0;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+
+        .result-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+            font-size: 0.9rem;
+        }
+
+        .result-table th, .result-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .result-table th {
+            background-color: #f2f2f2;
+            font-weight: 600;
+        }
+
+        .result-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .summary {
+            margin-top: 10px;
+            padding: 8px 12px;
+            background-color: #e8f5e9;
+            border-radius: 5px;
+            border-left: 4px solid #4caf50;
+        }
+
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: var(--gray);
+            font-style: italic;
+            margin: 10px 0;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 3px;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--gray);
+            animation: typing 1.4s infinite ease-in-out;
+        }
+
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes typing {
+            0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
+            40% { transform: scale(1); opacity: 1; }
+        }
+
+        /* Input Area */
+        .input-container {
+            display: flex;
+            gap: 10px;
+            background-color: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .text-input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            resize: none;
+            height: 50px;
+        }
+
+        .voice-btn {
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            width: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .voice-btn:hover {
+            background-color: #f5f5f5;
+        }
+
+        .voice-btn.recording {
+            background-color: #ffebee;
+            border-color: var(--warning);
+            color: var(--warning);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(247, 37, 133, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(247, 37, 133, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(247, 37, 133, 0); }
+        }
+
+        .send-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            width: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .send-btn:hover {
+            background-color: var(--secondary);
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            padding: 2rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            animation: modalFadeIn 0.3s;
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            color: var(--dark);
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--gray);
+        }
+
+        .role-options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 1.5rem;
+        }
+
+        .role-option {
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .role-option:hover {
+            border-color: var(--primary-light);
+        }
+
+        .role-option.selected {
+            border-color: var(--primary);
+            background-color: rgba(67, 97, 238, 0.05);
+        }
+
+        .role-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .role-desc {
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .cancel-btn, .confirm-btn {
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .cancel-btn {
+            background-color: white;
+            border: 1px solid #ddd;
+        }
+
+        .cancel-btn:hover {
+            background-color: #f5f5f5;
+        }
+
+        .confirm-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+        }
+
+        .confirm-btn:hover {
+            background-color: var(--secondary);
+        }
+
+        .access-denied-modal {
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .warning-icon {
+            font-size: 3rem;
+            color: var(--warning);
+            margin-bottom: 1rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 200px;
+            }
+            
+            .message {
+                max-width: 90%;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .main-container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                padding: 1rem;
+                order: 2;
+                max-height: 150px;
+            }
+            
+            .chat-container {
+                order: 1;
+                padding: 1rem;
+            }
+            
+            .chat-history {
+                display: flex;
+                overflow-x: auto;
+                gap: 10px;
+            }
+            
+            .history-item {
+                flex-shrink: 0;
+                width: auto;
+            }
+            
+            header {
+                padding: 1rem;
+            }
+            
+            .logo h1 {
+                font-size: 1.5rem;
+            }
+            
+            .tagline {
+                display: none;
+            }
+        }
+    </style>
 </head>
 <body>
-  <div class="loader-container">
-    <p><b>QueryGenie</b></p>
-    <div class="loading-text">Loading...</div>
-  </div>
+    <!-- Header -->
+    <header>
+        <div class="logo">
+            <h1>QueryGenie 🧞</h1>
+            <span class="tagline">Conversational AI SQL Assistant</span>
+        </div>
+        <div class="user-info">
+            <div class="role-badge">Role: Viewer</div>
+            <button class="login-btn" id="loginBtn">Login</button>
+        </div>
+    </header>
 
-  <script>
-    // Redirect after 3 seconds to your main page
-    setTimeout(() => {
-      window.location.href = "home.html"; // <-- THE ONLY CHANGE IS HERE
-    }, 3000);
-  </script>
+    <!-- Main Content -->
+    <div class="main-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <button class="new-chat-btn" id="newChatBtn">
+                <i class="fas fa-plus"></i> New Chat
+            </button>
+            <div class="chat-history">
+                <h3>Recent Conversations</h3>
+                <div id="historyList">
+                    <!-- Chat history will be populated here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Area -->
+        <div class="chat-container">
+            <div class="chat-messages" id="chatMessages">
+                <!-- Messages will be added here -->
+                <div class="message bot-message">
+                    <div class="message-header">
+                        <i class="fas fa-robot"></i> QueryGenie
+                    </div>
+                    <p>Hello! I'm QueryGenie, your AI SQL assistant. I can help you write SQL queries from natural language and explain the results.</p>
+                    <p>Try asking me something like: "Show me the top 5 customers by sales" or "What were last month's revenue figures?"</p>
+                </div>
+            </div>
+            <div class="input-container">
+                <textarea class="text-input" id="textInput" placeholder="Ask me anything about your data..."></textarea>
+                <button class="voice-btn" id="voiceBtn">
+                    <i class="fas fa-microphone"></i>
+                </button>
+                <button class="send-btn" id="sendBtn">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div class="modal" id="loginModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Select Your Role</h2>
+                <button class="close-btn" id="closeLoginModal">&times;</button>
+            </div>
+            <div class="role-options">
+                <div class="role-option" data-role="viewer">
+                    <div class="role-title">
+                        <i class="fas fa-eye"></i> Viewer
+                    </div>
+                    <div class="role-desc">
+                        Can view data and run SELECT queries only
+                    </div>
+                </div>
+                <div class="role-option" data-role="operator">
+                    <div class="role-title">
+                        <i class="fas fa-edit"></i> Operator
+                    </div>
+                    <div class="role-desc">
+                        Can run SELECT, INSERT, and UPDATE queries
+                    </div>
+                </div>
+                <div class="role-option" data-role="admin">
+                    <div class="role-title">
+                        <i class="fas fa-crown"></i> Admin
+                    </div>
+                    <div class="role-desc">
+                        Full access to all SQL operations including DELETE
+                    </div>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="cancel-btn" id="cancelLogin">Cancel</button>
+                <button class="confirm-btn" id="confirmLogin">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Access Denied Modal -->
+    <div class="modal" id="accessDeniedModal">
+        <div class="modal-content access-denied-modal">
+            <div class="warning-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <h2>Access Denied!</h2>
+            <p>Please log in as Operator or Admin to execute write operations.</p>
+            <button class="confirm-btn" id="closeAccessModal">OK</button>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const chatMessages = document.getElementById('chatMessages');
+        const textInput = document.getElementById('textInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const voiceBtn = document.getElementById('voiceBtn');
+        const newChatBtn = document.getElementById('newChatBtn');
+        const loginBtn = document.getElementById('loginBtn');
+        const loginModal = document.getElementById('loginModal');
+        const closeLoginModal = document.getElementById('closeLoginModal');
+        const cancelLogin = document.getElementById('cancelLogin');
+        const confirmLogin = document.getElementById('confirmLogin');
+        const accessDeniedModal = document.getElementById('accessDeniedModal');
+        const closeAccessModal = document.getElementById('closeAccessModal');
+        const roleOptions = document.querySelectorAll('.role-option');
+        const roleBadge = document.querySelector('.role-badge');
+        const historyList = document.getElementById('historyList');
+
+        // App State
+        let currentRole = 'viewer';
+        let chatHistory = [];
+        let currentChatId = null;
+        let isRecording = false;
+        let recognition = null;
+
+        // SQL-related keywords for validation
+        const sqlKeywords = [
+            'show', 'select', 'display', 'give', 'find', 'get', 'list', 'count', 
+            'how many', 'what', 'which', 'where', 'when', 'who', 'sum', 'average', 
+            'max', 'min', 'total', 'from', 'table', 'database', 'query', 'data',
+            'sales', 'customer', 'product', 'order', 'revenue', 'profit', 'inventory',
+            'employee', 'user', 'category', 'price', 'amount', 'quantity', 'date',
+            'year', 'month', 'week', 'day', 'top', 'bottom', 'highest', 'lowest',
+            'best', 'worst', 'performance', 'report', 'analysis', 'trend'
+        ];
+
+        // Initialize the app
+        function init() {
+            loadChatHistory();
+            setupEventListeners();
+            initializeSpeechRecognition();
+        }
+
+        // Set up event listeners
+        function setupEventListeners() {
+            sendBtn.addEventListener('click', sendMessage);
+            textInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+            
+            voiceBtn.addEventListener('click', toggleVoiceRecording);
+            newChatBtn.addEventListener('click', startNewChat);
+            loginBtn.addEventListener('click', openLoginModal);
+            closeLoginModal.addEventListener('click', closeLoginModalFunc);
+            cancelLogin.addEventListener('click', closeLoginModalFunc);
+            confirmLogin.addEventListener('click', confirmRoleChange);
+            closeAccessModal.addEventListener('click', () => {
+                accessDeniedModal.style.display = 'none';
+            });
+            
+            roleOptions.forEach(option => {
+                option.addEventListener('click', () => {
+                    roleOptions.forEach(opt => opt.classList.remove('selected'));
+                    option.classList.add('selected');
+                });
+            });
+        }
+
+        // Initialize Web Speech API
+        function initializeSpeechRecognition() {
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                recognition = new SpeechRecognition();
+                recognition.continuous = false;
+                recognition.interimResults = false;
+                
+                recognition.onstart = () => {
+                    isRecording = true;
+                    voiceBtn.classList.add('recording');
+                };
+                
+                recognition.onresult = (event) => {
+                    const transcript = event.results[0][0].transcript;
+                    textInput.value = transcript;
+                    isRecording = false;
+                    voiceBtn.classList.remove('recording');
+                };
+                
+                recognition.onerror = () => {
+                    isRecording = false;
+                    voiceBtn.classList.remove('recording');
+                };
+                
+                recognition.onend = () => {
+                    isRecording = false;
+                    voiceBtn.classList.remove('recording');
+                };
+            } else {
+                voiceBtn.style.display = 'none';
+            }
+        }
+
+        // Toggle voice recording
+        function toggleVoiceRecording() {
+            if (!recognition) return;
+            
+            if (isRecording) {
+                recognition.stop();
+            } else {
+                recognition.start();
+            }
+        }
+
+        // Validate if message is SQL-related
+        function isSQLRelated(message) {
+            const lowerMessage = message.toLowerCase();
+            return sqlKeywords.some(keyword => lowerMessage.includes(keyword));
+        }
+
+        // Send message function
+        function sendMessage() {
+            const message = textInput.value.trim();
+            if (!message) return;
+            
+            // Add user message to chat
+            addMessageToChat('user', message);
+            textInput.value = '';
+            
+            // Show typing indicator
+            showTypingIndicator();
+            
+            // Simulate processing delay
+            setTimeout(() => {
+                // Remove typing indicator
+                removeTypingIndicator();
+                
+                // Check if message is SQL-related
+                if (!isSQLRelated(message)) {
+                    addMessageToChat('assistant', 
+                        "I'm a specialized SQL assistant, not a general chatbot like ChatGPT or DeepSeek. " +
+                        "Please ask me about data queries using words like 'show', 'select', 'display', 'give', 'find', etc. " +
+                        "For example: 'Show me the top 5 products by sales' or 'Give me customer data from last month'."
+                    );
+                } else {
+                    // Process the message and generate response
+                    processUserMessage(message);
+                }
+                
+                // Save chat to history
+                saveChatToHistory();
+            }, 1500);
+        }
+
+        // Add message to chat UI
+        function addMessageToChat(role, content, data = null) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${role}-message`;
+            
+            if (role === 'user') {
+                messageDiv.innerHTML = `
+                    <div class="message-header">
+                        <i class="fas fa-user"></i> You
+                    </div>
+                    <p>${content}</p>
+                `;
+            } else if (role === 'assistant') {
+                let messageContent = `
+                    <div class="message-header">
+                        <i class="fas fa-robot"></i> QueryGenie
+                    </div>
+                    <p>${content}</p>
+                `;
+                
+                if (data) {
+                    if (data.sql) {
+                        messageContent += `
+                            <div class="message-header">
+                                <i class="fas fa-code"></i> Generated SQL Query
+                            </div>
+                            <div class="sql-query">${data.sql}</div>
+                        `;
+                    }
+                    
+                    if (data.explanation) {
+                        messageContent += `
+                            <div class="message-header">
+                                <i class="fas fa-info-circle"></i> Explanation
+                            </div>
+                            <p>${data.explanation}</p>
+                        `;
+                    }
+                    
+                    if (data.result && data.result.length > 0) {
+                        messageContent += `
+                            <div class="message-header">
+                                <i class="fas fa-table"></i> Result Table
+                            </div>
+                            ${generateTableHTML(data.result)}
+                        `;
+                    }
+                    
+                    if (data.summary) {
+                        messageContent += `<div class="summary">${data.summary}</div>`;
+                    }
+                }
+                
+                messageDiv.innerHTML = messageContent;
+            }
+            
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            
+            // Add to chat history
+            if (currentChatId) {
+                const chat = getCurrentChat();
+                chat.messages.push({
+                    role,
+                    content,
+                    data
+                });
+            }
+        }
+
+        // Generate HTML table from data
+        function generateTableHTML(data) {
+            if (!data || data.length === 0) return '';
+            
+            const headers = Object.keys(data[0]);
+            let html = '<table class="result-table"><thead><tr>';
+            
+            headers.forEach(header => {
+                html += `<th>${header}</th>`;
+            });
+            
+            html += '</tr></thead><tbody>';
+            
+            data.forEach(row => {
+                html += '<tr>';
+                headers.forEach(header => {
+                    html += `<td>${row[header]}</td>`;
+                });
+                html += '</tr>';
+            });
+            
+            html += '</tbody></table>';
+            return html;
+        }
+
+        // Show typing indicator
+        function showTypingIndicator() {
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'typing-indicator';
+            typingDiv.id = 'typingIndicator';
+            typingDiv.innerHTML = `
+                QueryGenie is thinking...
+                <div class="typing-dots">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+            `;
+            chatMessages.appendChild(typingDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Remove typing indicator
+        function removeTypingIndicator() {
+            const typingIndicator = document.getElementById('typingIndicator');
+            if (typingIndicator) {
+                typingIndicator.remove();
+            }
+        }
+
+        // Process user message and generate response
+        function processUserMessage(message) {
+            // Check for write operations if user is viewer
+            const writeOperations = ['insert', 'update', 'delete', 'create', 'alter', 'drop'];
+            const hasWriteOperation = writeOperations.some(op => 
+                message.toLowerCase().includes(op)
+            );
+            
+            if (hasWriteOperation && currentRole === 'viewer') {
+                accessDeniedModal.style.display = 'flex';
+                addMessageToChat('assistant', "I've detected a write operation in your query.");
+                return;
+            }
+            
+            // Generate response based on message
+            const response = generateResponse(message);
+            addMessageToChat('assistant', response.message, response.data);
+        }
+
+        // Generate fake response based on user message
+        function generateResponse(message) {
+            const lowerMessage = message.toLowerCase();
+            
+            // Sample responses for different query types
+            if (lowerMessage.includes('sales') || lowerMessage.includes('revenue')) {
+                return {
+                    message: "I've analyzed the sales data for you.",
+                    data: {
+                        sql: "SELECT date, product, region, amount FROM sales WHERE date >= DATE_SUB(NOW(), INTERVAL 30 DAY) ORDER BY amount DESC LIMIT 5;",
+                        explanation: "This query retrieves the top 5 sales records from the last 30 days, ordered by the sales amount in descending order.",
+                        result: [
+                            { date: '2023-05-15', product: 'Premium Subscription', region: 'North America', amount: '$12,450' },
+                            { date: '2023-05-12', product: 'Enterprise License', region: 'Europe', amount: '$10,200' },
+                            { date: '2023-05-10', product: 'Professional Package', region: 'Asia', amount: '$8,750' },
+                            { date: '2023-05-08', product: 'Basic Plan', region: 'North America', amount: '$5,300' },
+                            { date: '2023-05-05', product: 'Add-on Service', region: 'South America', amount: '$3,900' }
+                        ],
+                        summary: "Total sales for the last 30 days: $245,600"
+                    }
+                };
+            } else if (lowerMessage.includes('customer') || lowerMessage.includes('user')) {
+                return {
+                    message: "Here's the customer information you requested.",
+                    data: {
+                        sql: "SELECT customer_id, name, email, country, signup_date FROM customers ORDER BY signup_date DESC LIMIT 5;",
+                        explanation: "This query retrieves the 5 most recently registered customers from the database.",
+                        result: [
+                            { customer_id: 'CUST-1024', name: 'Alex Johnson', email: 'alex.j@example.com', country: 'USA', signup_date: '2023-05-20' },
+                            { customer_id: 'CUST-1023', name: 'Maria Garcia', email: 'maria.g@example.com', country: 'Spain', signup_date: '2023-05-18' },
+                            { customer_id: 'CUST-1022', name: 'Wei Zhang', email: 'wei.z@example.com', country: 'China', signup_date: '2023-05-15' },
+                            { customer_id: 'CUST-1021', name: 'James Wilson', email: 'james.w@example.com', country: 'UK', signup_date: '2023-05-12' },
+                            { customer_id: 'CUST-1020', name: 'Sophie Martin', email: 'sophie.m@example.com', country: 'France', signup_date: '2023-05-10' }
+                        ],
+                        summary: "Showing 5 of 1,247 total customers"
+                    }
+                };
+            } else if (lowerMessage.includes('product') || lowerMessage.includes('inventory')) {
+                return {
+                    message: "Here's the product information from our inventory.",
+                    data: {
+                        sql: "SELECT product_id, name, category, price, stock_quantity FROM products WHERE stock_quantity < 50 ORDER BY stock_quantity ASC;",
+                        explanation: "This query finds products with low inventory (less than 50 units) and orders them by stock quantity in ascending order.",
+                        result: [
+                            { product_id: 'PROD-587', name: 'Wireless Earbuds', category: 'Electronics', price: '$79.99', stock_quantity: 12 },
+                            { product_id: 'PROD-421', name: 'Fitness Tracker', category: 'Wearables', price: '$49.99', stock_quantity: 18 },
+                            { product_id: 'PROD-256', name: 'Bluetooth Speaker', category: 'Electronics', price: '$129.99', stock_quantity: 23 },
+                            { product_id: 'PROD-189', name: 'Gaming Mouse', category: 'Computer Accessories', price: '$59.99', stock_quantity: 35 },
+                            { product_id: 'PROD-073', name: 'USB-C Hub', category: 'Computer Accessories', price: '$39.99', stock_quantity: 42 }
+                        ],
+                        summary: "5 products are running low on inventory and may need restocking"
+                    }
+                };
+            } else {
+                // Default response for other queries
+                return {
+                    message: "I've processed your query about the database.",
+                    data: {
+                        sql: "SELECT * FROM data_table WHERE condition = 'your_criteria' LIMIT 5;",
+                        explanation: "This is a sample query that would retrieve relevant data based on your request. The actual query would be tailored to your specific database schema and requirements.",
+                        result: [
+                            { id: 1, value: 'Sample Data 1', category: 'A', timestamp: '2023-05-01' },
+                            { id: 2, value: 'Sample Data 2', category: 'B', timestamp: '2023-05-02' },
+                            { id: 3, value: 'Sample Data 3', category: 'A', timestamp: '2023-05-03' },
+                            { id: 4, value: 'Sample Data 4', category: 'C', timestamp: '2023-05-04' },
+                            { id: 5, value: 'Sample Data 5', category: 'B', timestamp: '2023-05-05' }
+                        ],
+                        summary: "Query executed successfully. 5 records returned."
+                    }
+                };
+            }
+        }
+
+        // Start a new chat
+        function startNewChat() {
+            if (chatHistory.length > 0 && 
+                getCurrentChat().messages.length > 1 && 
+                !confirm('Are you sure you want to start a new chat? The current chat will be saved.')) {
+                return;
+            }
+            
+            currentChatId = 'chat-' + Date.now();
+            chatHistory.push({
+                id: currentChatId,
+                title: 'New Chat',
+                messages: []
+            });
+            
+            // Clear chat UI
+            chatMessages.innerHTML = `
+                <div class="message bot-message">
+                    <div class="message-header">
+                        <i class="fas fa-robot"></i> QueryGenie
+                    </div>
+                    <p>Hello! I'm QueryGenie, your AI SQL assistant. I can help you write SQL queries from natural language and explain the results.</p>
+                    <p>Try asking me something like: "Show me the top 5 customers by sales" or "What were last month's revenue figures?"</p>
+                </div>
+            `;
+            
+            updateChatHistoryUI();
+            saveChatToStorage();
+        }
+
+        // Load chat history from localStorage
+        function loadChatHistory() {
+            const savedHistory = localStorage.getItem('queryGenieChatHistory');
+            if (savedHistory) {
+                chatHistory = JSON.parse(savedHistory);
+                if (chatHistory.length > 0) {
+                    currentChatId = chatHistory[chatHistory.length - 1].id;
+                    loadChat(currentChatId);
+                } else {
+                    startNewChat();
+                }
+            } else {
+                startNewChat();
+            }
+            
+            updateChatHistoryUI();
+        }
+
+        // Update chat history UI
+        function updateChatHistoryUI() {
+            historyList.innerHTML = '';
+            
+            chatHistory.forEach(chat => {
+                const historyItem = document.createElement('div');
+                historyItem.className = `history-item ${chat.id === currentChatId ? 'active' : ''}`;
+                historyItem.textContent = chat.title;
+                historyItem.addEventListener('click', () => {
+                    loadChat(chat.id);
+                });
+                historyList.appendChild(historyItem);
+            });
+        }
+
+        // Load a specific chat
+        function loadChat(chatId) {
+            currentChatId = chatId;
+            const chat = getCurrentChat();
+            
+            // Clear chat UI
+            chatMessages.innerHTML = '';
+            
+            // Add messages to UI
+            chat.messages.forEach(msg => {
+                addMessageToChat(msg.role, msg.content, msg.data);
+            });
+            
+            // If no messages, add welcome message
+            if (chat.messages.length === 0) {
+                chatMessages.innerHTML = `
+                    <div class="message bot-message">
+                        <div class="message-header">
+                            <i class="fas fa-robot"></i> QueryGenie
+                        </div>
+                        <p>Hello! I'm QueryGenie, your AI SQL assistant. How can I help you today?</p>
+                    </div>
+                `;
+            }
+            
+            updateChatHistoryUI();
+        }
+
+        // Get current chat object
+        function getCurrentChat() {
+            return chatHistory.find(chat => chat.id === currentChatId);
+        }
+
+        // Save chat to history
+        function saveChatToHistory() {
+            const chat = getCurrentChat();
+            if (chat && chat.messages.length > 0) {
+                // Update chat title with first user message
+                const firstUserMessage = chat.messages.find(msg => msg.role === 'user');
+                if (firstUserMessage) {
+                    chat.title = firstUserMessage.content.substring(0, 30) + 
+                                (firstUserMessage.content.length > 30 ? '...' : '');
+                }
+            }
+            
+            updateChatHistoryUI();
+            saveChatToStorage();
+        }
+
+        // Save chat history to localStorage
+        function saveChatToStorage() {
+            localStorage.setItem('queryGenieChatHistory', JSON.stringify(chatHistory));
+        }
+
+        // Open login modal
+        function openLoginModal() {
+            // Select current role in modal
+            roleOptions.forEach(option => {
+                if (option.dataset.role === currentRole) {
+                    option.classList.add('selected');
+                } else {
+                    option.classList.remove('selected');
+                }
+            });
+            
+            loginModal.style.display = 'flex';
+        }
+
+        // Close login modal
+        function closeLoginModalFunc() {
+            loginModal.style.display = 'none';
+        }
+
+        // Confirm role change
+        function confirmRoleChange() {
+            const selectedOption = document.querySelector('.role-option.selected');
+            if (selectedOption) {
+                currentRole = selectedOption.dataset.role;
+                roleBadge.textContent = `Role: ${currentRole.charAt(0).toUpperCase() + currentRole.slice(1)}`;
+                closeLoginModalFunc();
+            }
+        }
+
+        // Initialize the app when DOM is loaded
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
 </body>
 </html>
